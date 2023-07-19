@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WhatsApp Link Generator</title>
+</head>
+<body>
+    <h1>WhatsApp Link Generator</h1>
+    <form id="whatsappForm">
+        <label for="phoneNumbers">Enter phone numbers (separated by spaces, commas, or new lines):</label><br>
+        <textarea id="phoneNumbers" name="phoneNumbers" rows="4" cols="50" required></textarea><br>
+        <label for="message">Enter your message:</label><br>
+        <textarea id="message" name="message" rows="4" cols="50" required></textarea><br>
+        <input type="submit" value="Generate WhatsApp Links">
+    </form>
+
+    <div id="output"></div>
+
+    <script>
+        document.getElementById("whatsappForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const phoneNumbersInput = document.getElementById("phoneNumbers").value;
+            const messageInput = document.getElementById("message").value;
+
+            // Clean and create a comma-separated list of phone numbers
+            const phoneNumbers = phoneNumbersInput
+                .replace(/[ ,\r\n\t]+/g, ',') // Replace spaces, commas, new lines, and tabs with commas
+                .replace(/^,+|,+$/g, '')     // Remove leading/trailing commas
+                .split(",");
+
+            // Add "+" and "62" in front of the phone numbers if they don't have a leading "0" or "+"
+            const formattedPhoneNumbers = phoneNumbers.map(phoneNumber => {
+                return phoneNumber.startsWith("+") ? phoneNumber : (phoneNumber.startsWith("0") ? "+62" + phoneNumber.substr(1) : "+62" + phoneNumber);
+            });
+
+            // Encode the message text for the WhatsApp link
+            const encodedMessage = encodeURIComponent(messageInput);
+
+            let whatsappLinks = '';
+
+            // Generate WhatsApp links for each phone number
+            formattedPhoneNumbers.forEach((phoneNumber, index) => {
+                const link = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+                whatsappLinks += `<p><a href="${link}" target="_blank">Message ${index + 1}</a></p>`;
+            });
+
+            document.getElementById("output").innerHTML = whatsappLinks;
+        });
+    </script>
+</body>
+</html>
